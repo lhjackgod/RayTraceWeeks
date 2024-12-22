@@ -1,0 +1,3 @@
+D:\cmake\software\bin\cmake.exe -E rm -f CMakeFiles\.\bin\main.dir/objects.a
+D:\MinGw\software\ucrt64\bin\ar.exe qc CMakeFiles\.\bin\main.dir/objects.a @CMakeFiles\.\bin\main.dir\objects1.rsp
+D:\MinGw\software\ucrt64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\.\bin\main.dir/objects.a -Wl,--no-whole-archive -o .\bin\main.exe -Wl,--out-implib,lib.\bin\main.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\.\bin\main.dir\linkLibs.rsp

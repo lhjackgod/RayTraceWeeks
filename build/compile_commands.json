@@ -1,0 +1,8 @@
+[
+{
+  "directory": "D:/learnOpengl/raytrace/build",
+  "command": "D:\\MinGw\\software\\ucrt64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -o CMakeFiles\\main.dir\\main.cpp.obj -c D:\\learnOpengl\\raytrace\\main.cpp",
+  "file": "D:/learnOpengl/raytrace/main.cpp",
+  "output": "CMakeFiles/main.dir/main.cpp.obj"
+}
+]
