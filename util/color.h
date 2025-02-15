@@ -9,7 +9,7 @@ inline double linear_to_gamma(double linear_component){
     }
     return 0;
 }
-void write_color(std::ostream& out,const color& pixel_color,color& actural_color){
+void write_color(std::ostream& out, const color& pixel_color){
     auto r=pixel_color.x();
     auto g=pixel_color.y();
     auto b=pixel_color.z();
@@ -20,7 +20,7 @@ void write_color(std::ostream& out,const color& pixel_color,color& actural_color
     int rbyte = int(256*intensity.clamp(r));
     int gbyte = int(256*intensity.clamp(g));
     int bbyte = int(256*intensity.clamp(b));
-    actural_color=color(rbyte,gbyte,bbyte);
-    // out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+    //actural_color=color(rbyte,gbyte,bbyte);
+    out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
 }
 #endif

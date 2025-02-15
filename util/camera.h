@@ -2,7 +2,6 @@
 #define CAMERA_H
 #include "rtweekend.h"
 #include "hittable.h"
-#include <opencv2/opencv.hpp>
 #include "material.h"
 class camera{
 public:
@@ -19,28 +18,24 @@ public:
     color background;
     void render(const hittable& world){
         initialize();
-        cv::Mat image(image_height,image_width,CV_8UC3);
+
+        std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
         for(int j = 0;j<image_height;j++){
             for(int i =0 ;i < image_width ;i ++ ){
                 color pixel_color(0,0,0);
-                for(int sample=0;sample<samples_per_pixel;sample++){
-                    Ray r = get_ray(i,j);
-                    pixel_color += ray_color(r,max_depth,world);
+                for(int sampleu = 0; sampleu < sqrt_spp; sampleu++)
+                {
+                    for(int samplev = 0; samplev < sqrt_spp; samplev++)
+                    {
+                        Ray r = get_ray(i, j, sampleu, samplev);
+                        pixel_color += ray_color(r,max_depth,world);
+                    }
                 }
-                pixel_color *= pixel_sample_scale;
-                color preColor;
-                write_color(std::cout,pixel_color,preColor);
-                cv::Vec3b pre_color(
-                    (uchar)(preColor.z()),
-                    (uchar)(preColor.y()),
-                    (uchar)(preColor.x())
-                );
-                image.at<cv::Vec3b>(j,i) = pre_color;
+                pixel_color *= recip_sqrt_spp;
+                write_color(std::cout, pixel_color);
             }
         }
-        cv::imshow("jack",image);
-        cv::imwrite("jack.png",image);
-        cv::waitKey(0);
+        std::clog << "\rDone.                     \n";
     }
 private:
     int image_height;
@@ -52,11 +47,15 @@ private:
     vec3 u,v,w;
     vec3 defocus_disk_u;
     vec3 defocus_disk_v;
+    int sqrt_spp;
+    double recip_sqrt_spp;
     void initialize(){
         image_height = static_cast<int>(image_width / aspect_ratio);
         image_height = (image_height < 1 ) ? 1 : image_height;
         center = lookfrom;
         pixel_sample_scale = 1.0 / samples_per_pixel;
+        sqrt_spp = static_cast<int>(std::sqrt(samples_per_pixel));
+        recip_sqrt_spp = 1.0 / (sqrt_spp * sqrt_spp);
         //viewpoer
         
         double theta = degrees_to_radians(vfov);
@@ -110,11 +109,18 @@ private:
     vec3 sample_square() const {
         return vec3(random_double()-0.5,random_double()-0.5,0.0);
     }
-    Ray get_ray(int i,int j) const {
-        vec3 offset=sample_square();
+
+    vec3 sample_square_stratified(int s_i, int s_j) const{
+        auto px = ((s_i + random_double()) * recip_sqrt_spp) - 0.5;
+        auto py = ((s_j + random_double()) * recip_sqrt_spp) - 0.5;
+        return vec3(px, py, 0.0); 
+    }
+
+    Ray get_ray(int i,int j, int s_i, int s_j) const {
+        vec3 offset=sample_square_stratified(s_i, s_j);
         vec3 pixel_sample=pixel00_loc + 
-                          ((i+offset.x()) * pixel_delta_u)+
-                          ((j+offset.y()) * pixel_delta_v);
+                          ((i+ offset.x()) * pixel_delta_u)+
+                          ((j+ offset.y()) * pixel_delta_v);
         vec3 ray_origin = (defocus_angle <= 0 ) ? center : defocus_disk_sample();
         vec3 direction = pixel_sample - ray_origin;
         direction = unit_vector(direction);

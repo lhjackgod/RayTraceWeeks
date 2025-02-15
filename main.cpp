@@ -7,6 +7,7 @@
 #include "util/texture.h"
 #include "util/quad.h"
 #include "util/constant_medium.h"
+#include <iomanip>
 void bouncing_spheres(){
     hittable_list world;
     shared_ptr<check_texture> check = make_shared<check_texture>(0.32,color(.2,.3,.1),color(0.9,0.9,0.9));
@@ -206,7 +207,7 @@ void cornell_box(){
 
     cam.aspect_ratio      = 1.0;
     cam.image_width       = 600;
-    cam.samples_per_pixel = 200;
+    cam.samples_per_pixel = 64;
     cam.max_depth         = 50;
     cam.background        = color(0,0,0);
 
@@ -339,25 +340,26 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 }
 
 int main(){
-    std::cout<<std::fixed<<std::setprecision(12);
-    int inside_cycle = 0;
-    int inside_cycle_second = 0;
-    int runs = 0;
-    int N_sqrt = 100;
-    for(int i = 0; i < N_sqrt; i++){
-        for(int j = 0; j< N_sqrt; j++){
-            double x = random_double(-1,1);
-            double y = random_double(-1,1);
-            if(x*x+y*y <= 1){
-                inside_cycle++;
-            }
-            x = 2 * ((i + random_double()) / N_sqrt) - 1;
-            y = 2 * ((j + random_double()) / N_sqrt) - 1;
-            if(x*x+y*y <= 1){
-                inside_cycle_second++;
-            }
-        }
-    }
-    std::cout<<(4.0 * inside_cycle / (N_sqrt * N_sqrt))<<" "<<(4.0 * inside_cycle_second / (N_sqrt * N_sqrt))<<std::endl;
+    cornell_box();
+    // std::cout<<std::fixed<<std::setprecision(12);
+    // int inside_cycle = 0;
+    // int inside_cycle_second = 0;
+    // int runs = 0;
+    // int N_sqrt = 100;
+    // for(int i = 0; i < N_sqrt; i++){
+    //     for(int j = 0; j< N_sqrt; j++){
+    //         double x = random_double(-1,1);
+    //         double y = random_double(-1,1);
+    //         if(x*x+y*y <= 1){
+    //             inside_cycle++;
+    //         }
+    //         x = 2 * ((i + random_double()) / N_sqrt) - 1;
+    //         y = 2 * ((j + random_double()) / N_sqrt) - 1;
+    //         if(x*x+y*y <= 1){
+    //             inside_cycle_second++;
+    //         }
+    //     }
+    // }
+    // std::cout<<(4.0 * inside_cycle / (N_sqrt * N_sqrt))<<" "<<(4.0 * inside_cycle_second / (N_sqrt * N_sqrt))<<std::endl;
     return 0;
 }
