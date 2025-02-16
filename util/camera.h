@@ -93,7 +93,9 @@ private:
         if(!rec.mat->scatter(r,rec,attenuation,scattered)){
             return color_from_emission;
         }
-        color color_from_scatter = attenuation * ray_color(scattered,depth-1,world);
+        double scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+        double sample_pdf = 1.0 / (2 * pi);
+        color color_from_scatter = (scatter_pdf * attenuation * ray_color(scattered,depth-1,world)) / sample_pdf;
         return color_from_emission + color_from_scatter;
         // if(world.hit(r,interval(0.001,infinity),rec)){
         //     color attenuation;

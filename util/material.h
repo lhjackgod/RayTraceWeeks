@@ -14,6 +14,11 @@ public:
     ) const {
         return false;
     }
+    virtual double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered)
+        const
+    {
+        return 0;
+    }
 };
 class lambertian : public material{
 public:
@@ -22,14 +27,20 @@ public:
     bool scatter(
         const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered
     ) const override{
-        vec3 direction = rec.normal + random_unit_vector();
+        vec3 direction = random_on_hemisphere(rec.normal);
         if(direction.near_zero()) direction = rec.normal;
 
         direction = unit_vector(direction);
-        scattered = Ray(rec.p , direction,r_in.time());
+        scattered = Ray(rec.p , direction, r_in.time());
         attenuation = tex->value(rec.u,rec.v,rec.p);
         return true;
     }
+    double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered) 
+        const override
+        {
+            auto cosine = dot(rec.normal, unit_vector(scattered.direction()));
+            return cosine < 0 ? 0 : cosine / pi;
+        }
 private:
     color albedo;
     shared_ptr<texture> tex;
