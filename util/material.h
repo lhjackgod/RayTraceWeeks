@@ -1,6 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 #include "rtweekend.h"
+#include "ONB.h"
 #include "texture.h"
 class hit_record;
 class material{
@@ -10,7 +11,7 @@ public:
         return color(0,0,0);
     }
     virtual bool scatter(
-        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered
+        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered, double& pdf
     ) const {
         return false;
     }
@@ -25,13 +26,14 @@ public:
     lambertian(const color& albedo) :tex(make_shared<solid_color>(albedo)){}
     lambertian(shared_ptr<texture> tex) : tex(tex){}
     bool scatter(
-        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered
+        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered, double& pdf
     ) const override{
-        vec3 direction = random_on_hemisphere(rec.normal);
-        if(direction.near_zero()) direction = rec.normal;
+        ONB onb(rec.normal);
+        vec3 direction = random_cosine_direction();
+        direction = onb.transform(direction); // from local to world
+        pdf = dot(onb.w(), direction) / pi;
 
-        direction = unit_vector(direction);
-        scattered = Ray(rec.p , direction, r_in.time());
+        scattered = Ray(rec.p, direction, r_in.time());
         attenuation = tex->value(rec.u,rec.v,rec.p);
         return true;
     }
@@ -48,7 +50,7 @@ private:
 class metal : public material{
 public:
     metal(const color& albedo,const double& fuzz) : albedo(albedo),fuzz(fuzz < 1? fuzz:1){}
-    bool scatter(const Ray& r_in,const hit_record& rec, color& attenuation,Ray& scattered) const override{
+    bool scatter(const Ray& r_in,const hit_record& rec, color& attenuation,Ray& scattered, double& pdf) const override{
         vec3 reflected = reflect(r_in.direction(),rec.normal);
         vec3 fuzz_direction=fuzz* random_unit_vector();
         reflected = reflected + fuzz_direction;
@@ -65,7 +67,7 @@ class dielectric : public material{
 public:
     dielectric(double refraction_index) : refraction_index(refraction_index){}
     bool scatter (
-        const Ray& r_in, const hit_record& rec , color& attenuation , Ray& scattered
+        const Ray& r_in, const hit_record& rec , color& attenuation , Ray& scattered, double& pdf
     ) const override{
         attenuation = color(1.0,1.0,1.0);
         double ri = rec.front_face? 1.0 / refraction_index:refraction_index ;
@@ -104,11 +106,17 @@ class isotropic : public material{
 public:
     isotropic(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
     isotropic(shared_ptr<texture> tex) : tex(tex) {}
+    virtual double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered)
+        const override
+    {
+        return 1.0 / (4 * pi);
+    }
     virtual bool scatter(
-        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered
+        const Ray& r_in,const hit_record& rec,color& attenuation,Ray& scattered, double& pdf
     ) const  override{
         scattered = Ray(rec.p,random_unit_vector(),r_in.time());
         attenuation = tex -> value(rec.u,rec.v,rec.p);
+        pdf = 1.0 / (4 * pi);
         return true;
     }
 private:

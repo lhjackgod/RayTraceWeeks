@@ -341,6 +341,6 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 
 int main(){
     cornell_box();
-    
+
     return 0;
 }

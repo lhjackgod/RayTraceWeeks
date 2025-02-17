@@ -89,24 +89,15 @@ private:
         
         color attenuation;
         Ray scattered;
+        double pdf_value;
         color color_from_emission = rec.mat->emitted(rec.u,rec.v,rec.p);
-        if(!rec.mat->scatter(r,rec,attenuation,scattered)){
+        if(!rec.mat->scatter(r,rec,attenuation,scattered, pdf_value)){
             return color_from_emission;
         }
         double scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-        double sample_pdf = 1.0 / (2 * pi);
-        color color_from_scatter = (scatter_pdf * attenuation * ray_color(scattered,depth-1,world)) / sample_pdf;
+        
+        color color_from_scatter = (scatter_pdf * attenuation * ray_color(scattered,depth-1,world)) / pdf_value;
         return color_from_emission + color_from_scatter;
-        // if(world.hit(r,interval(0.001,infinity),rec)){
-        //     color attenuation;
-        //     Ray scattered;
-        //     if(rec.mat->scatter(r,rec,attenuation,scattered)){
-        //         return attenuation*(ray_color(scattered,depth-1,world));
-        //     }
-        //     return color(0,0,0);
-        // }
-        // double a=0.5*(1.0+r.direction().y());
-        // return (1.0-a)*color(1.0,1.0,1.0)+a*color(0.5,0.7,1.0);
     }
     vec3 sample_square() const {
         return vec3(random_double()-0.5,random_double()-0.5,0.0);
