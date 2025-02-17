@@ -7,7 +7,7 @@ class hit_record;
 class material{
 public:
     virtual ~material() = default;
-    virtual color emitted(double u,double v,const Point3& p) const{
+    virtual color emitted(const Ray& r, const hit_record& rec, double u,double v,const Point3& p) const{
         return color(0,0,0);
     }
     virtual bool scatter(
@@ -96,7 +96,11 @@ class diffuse_light : public material{
 public:
     diffuse_light(shared_ptr<texture> tex) : tex(tex){}
     diffuse_light(const color& emit) : tex(make_shared<solid_color>(emit)) {}
-    color emitted(double u,double v,const Point3& p) const override{
+    color emitted(const Ray& r, const hit_record& rec, double u,double v,const Point3& p) const override{
+        if(!rec.front_face)
+        {
+            return color(0, 0, 0);
+        }
         return tex->value(u,v,p);
     }
 private:
