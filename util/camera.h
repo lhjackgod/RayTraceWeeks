@@ -3,6 +3,7 @@
 #include "rtweekend.h"
 #include "hittable.h"
 #include "material.h"
+#include "pdf.h"
 class camera{
 public:
     double aspect_ratio=16.0/9.0;
@@ -16,7 +17,7 @@ public:
     double defocus_angle = 0;
     double focus_dist = 10;
     color background;
-    void render(const hittable& world){
+    void render(const hittable& world, const hittable& lights){
         initialize();
 
         std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
@@ -28,7 +29,7 @@ public:
                     for(int samplev = 0; samplev < sqrt_spp; samplev++)
                     {
                         Ray r = get_ray(i, j, sampleu, samplev);
-                        pixel_color += ray_color(r,max_depth,world);
+                        pixel_color += ray_color(r,max_depth,world, lights);
                     }
                 }
                 pixel_color *= recip_sqrt_spp;
@@ -80,7 +81,7 @@ private:
         defocus_disk_v = defocus_radius * v;
 
     }
-    color ray_color(const Ray& r,int depth,const hittable& world) const{
+    color ray_color(const Ray& r,int depth,const hittable& world, const hittable& lights) const{
         if(depth <= 0 ){
             return color(0,0,0);
         }
@@ -94,23 +95,11 @@ private:
         if(!rec.mat->scatter(r,rec,attenuation,scattered, pdf_value)){
             return color_from_emission;
         }
-        auto on_light = Point3(random_double(213, 343), 554, random_double(227, 332));
-        auto to_light = on_light - rec.p;
-        auto distance_squared = to_light.length_squared();
-        to_light = unit_vector(to_light);
-        if(dot(to_light, rec.normal) < 0)
-        {
-            return color_from_emission;
-        }
-        if(abs(to_light.y()) < 0.0001) 
-        {
-            return color_from_emission;
-        }
-        double light_area = (343 - 213) * (332 - 227);
-        pdf_value = distance_squared / (light_area * abs(to_light.y()));
-        scattered = Ray(rec.p, to_light, r.time());
+        hittable_pdf light_pdf(lights, rec.p);
+        scattered = Ray(rec.p, light_pdf.generate(), r.time());
+        pdf_value = light_pdf.value(scattered.direction());
         double scatter_pdf = rec.mat->scattering_pdf(r, rec, scattered);
-        color color_from_scatter = (scatter_pdf * attenuation * ray_color(scattered,depth-1,world)) / pdf_value;
+        color color_from_scatter = (scatter_pdf * attenuation * ray_color(scattered,depth-1,world, lights)) / pdf_value;
         return color_from_emission + color_from_scatter;
     }
     vec3 sample_square() const {

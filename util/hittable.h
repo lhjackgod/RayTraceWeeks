@@ -22,6 +22,13 @@ public:
     virtual ~hittable() = default;
     virtual bool hit(const Ray& r,interval ray_t,hit_record& rec) const =0;
     virtual aabb bounding_box() const =0;
+    virtual double pdf_value(const Point3& origin, const vec3& direction) const 
+    {
+        return 0.0;
+    }
+    virtual vec3 random(const vec3& origin) const{
+        return vec3(1, 0, 0);
+    }
 };
 class translate : public hittable{
 public:

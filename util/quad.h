@@ -6,6 +6,7 @@ class quad : public hittable{
 public:
     quad(const Point3& Q,const vec3& u,const vec3& v,shared_ptr<material> mat) : Q(Q),u(u),v(v),mat(mat) {
         auto n = cross(u,v);
+        area = n.length();
         normal = unit_vector(n);
         D = dot(Q,normal);
         w = n/ dot(n,n);
@@ -51,6 +52,22 @@ public:
     aabb bounding_box() const override{
         return bbox;
     }
+    double pdf_value(const Point3& origin, const vec3& direction) const override
+    {
+        hit_record rec;
+        if(!this->hit(Ray(origin, direction), interval(0.001, infinity), rec))
+        {
+            return 0.0;
+        }
+        double distance_squared = rec.t * rec.t * direction.length_squared();
+        double cosine = std::fabs(dot(rec.normal, direction)) / direction.length();
+        return distance_squared / (cosine * area);
+    }
+    vec3 random(const vec3& origin) const override
+    {
+        vec3 p = Q + u * random_double() + v * random_double();
+        return p - origin;
+    }
 private:
     Point3 Q;
     vec3 u,v;
@@ -59,6 +76,7 @@ private:
     double D;
     shared_ptr<material> mat;
     aabb bbox;
+    double area;
 };
 inline shared_ptr<hittable_list> box(const Point3& a,const Point3& b,shared_ptr<material> mat){
     auto sides = make_shared<hittable_list>();

@@ -38,4 +38,22 @@ private:
     ONB uvw;
 };
 
+class hittable_pdf : public pdf
+{
+public:
+    hittable_pdf(const hittable& obj, const Point3& origin)
+        : obj(obj), origin(origin){}
+    double value(const vec3& direction) const override
+    {
+        return obj.pdf_value(origin, direction);
+    }
+    vec3 generate() const override
+    {
+        return obj.random(origin);
+    }
+private:
+    const hittable& obj;
+    Point3 origin;
+};
+
 #endif

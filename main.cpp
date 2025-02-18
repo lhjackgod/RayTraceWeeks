@@ -68,7 +68,7 @@ void bouncing_spheres(){
     cam.vup = vec3(0,1,0);
     cam.defocus_angle = 0.6;
     cam.focus_dist=10.0;
-    cam.render(bvh_root);
+    //cam.render(bvh_root);
     
 }
 void checkered_sphere(){
@@ -87,7 +87,7 @@ void checkered_sphere(){
     cam.lookat = Point3(0,0,0);
     cam.vup = vec3(0,1,0);
     cam.defocus_angle = 0;
-    cam.render(world);
+    //cam.render(world);
 }
 void earth(){
     hittable_list world;
@@ -106,7 +106,7 @@ void earth(){
     cam.lookat = Point3(0,0,0);
     cam.vup = vec3(0,1,0);
     cam.defocus_angle = 0;
-    cam.render(world);
+    //cam.render(world);
 }
 void perlin_spheres(){
     hittable_list world;
@@ -127,7 +127,7 @@ void perlin_spheres(){
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 void quads(){
     hittable_list world;
@@ -157,7 +157,7 @@ void quads(){
     cam.lookat   = Point3(0,0,0);
     cam.vup      = vec3(0,1,0);
     cam.defocus_angle = 0;
-    cam.render(world);
+    //cam.render(world);
 }
 void simple_light(){
     hittable_list world;
@@ -179,7 +179,7 @@ void simple_light(){
     cam.lookat = Point3(0,2,0);
     cam.vup = vec3(0,1,0);
     cam.defocus_angle = 0;
-    cam.render(world);
+    //cam.render(world);
 }
 void cornell_box(){
     hittable_list world;
@@ -194,6 +194,9 @@ void cornell_box(){
     world.add(make_shared<quad>(Point3(555,555,555),vec3(-555,0,0),vec3(0,0,-555),white));
     world.add(make_shared<quad>(Point3(0,0,555),vec3(555,0,0),vec3(0,555,0),white));
     
+    auto empty_material = make_shared<material>();
+    quad lights(Point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), empty_material);
+
     shared_ptr<hittable> box1 = box(Point3(0,0,0), Point3(165,330,165), white);
     box1 = make_shared<rotate_y>(box1, 15);
     box1 = make_shared<translate>(box1, vec3(265,0,295));
@@ -219,7 +222,7 @@ void cornell_box(){
 
     cam.defocus_angle = 0;
 
-    cam.render(bvh_root);
+    cam.render(bvh_root, lights);
 }
 void cornell_smoke(){
     hittable_list world;
@@ -260,7 +263,7 @@ void cornell_smoke(){
 
     cam.defocus_angle = 0;
 
-    cam.render(bvh_root);
+    //cam.render(bvh_root);
 }
 void final_scene(int image_width, int samples_per_pixel, int max_depth) {
     hittable_list boxes1;
@@ -337,7 +340,7 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 int main(){
