@@ -50,6 +50,8 @@ private:
     vec3 defocus_disk_v;
     int sqrt_spp;
     double recip_sqrt_spp;
+    std::vector<color> colorBuffer;
+    std::vector<uint8_t> screenVRSMask;
     void initialize(){
         image_height = static_cast<int>(image_width / aspect_ratio);
         image_height = (image_height < 1 ) ? 1 : image_height;
@@ -79,7 +81,9 @@ private:
         double defocus_radius = focus_dist * std::tan(degrees_to_radians(defocus_angle/2.0));
         defocus_disk_u = defocus_radius * u;
         defocus_disk_v = defocus_radius * v;
-
+        
+        colorBuffer.resize(image_width * image_height);
+        screenVRSMask.resize(image_width * image_height);
     }
     color ray_color(const Ray& r,int depth,const hittable& world, const hittable& lights) const{
         if(depth <= 0 ){
