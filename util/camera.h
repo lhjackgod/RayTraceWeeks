@@ -4,6 +4,9 @@
 #include "hittable.h"
 #include "material.h"
 #include "pdf.h"
+#include "RTV.h"
+#include <tuple>
+#include <chrono>
 class camera{
 public:
     double aspect_ratio=16.0/9.0;
@@ -19,8 +22,46 @@ public:
     color background;
     void render(const hittable& world, const hittable& lights){
         initialize();
-
         std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
+        #define NO_VRS
+        #ifdef USE_VRS
+
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        for(int RTVStep = 1; RTVStep <= 3; RTVStep++)
+        {
+            for(int index = 0; index < rtvToPixel[RTVStep].size(); index++)
+            {
+                int i = rtvToPixel[RTVStep][index].first;
+                int j = rtvToPixel[RTVStep][index].second;
+                auto[shaderX, shaderY] = getCenterPixel(i, j, RTVStep);
+                color pixel_color(0, 0, 0);
+                for(int sampleu = 0; sampleu < sqrt_spp; sampleu++)
+                {
+                    for(int samplev = 0; samplev < sqrt_spp; samplev++)
+                    {
+                        Ray r = get_ray(i, j, sampleu, samplev);
+                        pixel_color += ray_color(r,max_depth,world, lights);
+                    }
+                }
+                pixel_color *= recip_sqrt_spp;
+                for(int spiltY = 0; spiltY < RTVOFFSET::sizeX[RTVStep]; spiltY++)
+                {
+                    for(int spiltX = 0; spiltX < RTVOFFSET::sizeX[RTVStep]; spiltX++)
+                    {
+                        int shaderPixelX = i + spiltX;
+                        int shaderPixelY = j + spiltY;
+                        colorBuffer[shaderPixelY * image_width + shaderPixelX] = pixel_color;
+                    }
+                }
+            }
+        }
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+        std::cerr << "render time: " << time_span.count() << "ms\n";
+        #endif
+        
+        #ifdef NO_VRS
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         for(int j = 0;j<image_height;j++){
             for(int i =0 ;i < image_width ;i ++ ){
                 color pixel_color(0,0,0);
@@ -33,7 +74,16 @@ public:
                     }
                 }
                 pixel_color *= recip_sqrt_spp;
-                write_color(std::cout, pixel_color);
+                colorBuffer[j * image_width + i] = pixel_color;
+            }
+        }
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+        std::cerr << "render time: " << time_span.count() << "ms\n";
+        #endif
+        for(int j = 0;j<image_height;j++){
+            for(int i =0 ;i < image_width ;i ++ ){
+                write_color(std::cout, colorBuffer[j * image_width + i]);
             }
         }
         std::clog << "\rDone.                     \n";
@@ -51,10 +101,12 @@ private:
     int sqrt_spp;
     double recip_sqrt_spp;
     std::vector<color> colorBuffer;
-    std::vector<uint8_t> screenVRSMask;
+    std::vector<std::vector<std::pair<int, int>>> rtvToPixel;
+    int* belongRTV;
     void initialize(){
         image_height = static_cast<int>(image_width / aspect_ratio);
         image_height = (image_height < 1 ) ? 1 : image_height;
+        std::cerr << image_width << " " << image_height << "\n";
         center = lookfrom;
         pixel_sample_scale = 1.0 / samples_per_pixel;
         sqrt_spp = static_cast<int>(std::sqrt(samples_per_pixel));
@@ -83,7 +135,10 @@ private:
         defocus_disk_v = defocus_radius * v;
         
         colorBuffer.resize(image_width * image_height);
-        screenVRSMask.resize(image_width * image_height);
+        rtvToPixel.resize(5);
+        belongRTV = new int[image_width * image_height]{0};
+        setMask(rtvToPixel, image_width, image_height, belongRTV);
+        
     }
     color ray_color(const Ray& r,int depth,const hittable& world, const hittable& lights) const{
         if(depth <= 0 ){
@@ -130,6 +185,12 @@ private:
     Point3 defocus_disk_sample() const {
         vec3 p = random_in_unit_disk();
         return center + (p.x() * defocus_disk_u) + (p.y()* defocus_disk_v);
+    }
+    std::tuple<int, int> getCenterPixel(int leftPointX, int leftPointY, int rate)
+    {
+        int sizeXOffset = (RTVOFFSET::sizeX[rate] - 1) / 2;
+        int sizeYOffset = (RTVOFFSET::sizeY[rate] - 1) / 2;
+        return std::make_tuple(leftPointX + sizeXOffset, leftPointY + sizeYOffset);
     }
 };
 #endif
