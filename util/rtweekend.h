@@ -27,4 +27,5 @@ inline int random_int(int min,int max){
 #include "interval.h"
 #include "color.h"
 #include "ray.h"
+#include "vecmath.h"
 #endif

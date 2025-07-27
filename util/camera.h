@@ -5,6 +5,7 @@
 #include "material.h"
 #include "pdf.h"
 #include "RTV.h"
+#include "parallel.h"
 #include <tuple>
 #include <chrono>
 class camera{
@@ -62,21 +63,38 @@ public:
         
         #ifdef NO_VRS
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        for(int j = 0;j<image_height;j++){
-            for(int i =0 ;i < image_width ;i ++ ){
-                color pixel_color(0,0,0);
-                for(int sampleu = 0; sampleu < sqrt_spp; sampleu++)
+
+        Bounds2i image(0.0f, 0.0f, image_width, image_height);
+        
+        ParallelFor2D(image, [&](Point2i p){
+            color pixel_color(0,0,0);
+            for(int sampleu = 0; sampleu < sqrt_spp; sampleu++)
+            {
+                for(int samplev = 0; samplev < sqrt_spp; samplev++)
                 {
-                    for(int samplev = 0; samplev < sqrt_spp; samplev++)
-                    {
-                        Ray r = get_ray(i, j, sampleu, samplev);
-                        pixel_color += ray_color(r,max_depth,world, lights);
-                    }
+                    Ray r = get_ray(p.x, p.y, sampleu, samplev);
+                    pixel_color += ray_color(r,max_depth, world, lights);
                 }
-                pixel_color *= recip_sqrt_spp;
-                colorBuffer[j * image_width + i] = pixel_color;
             }
-        }
+            pixel_color *= recip_sqrt_spp;
+            colorBuffer[p.y * image_width + p.x] = pixel_color;
+        });
+
+        // for(int j = 0;j<image_height;j++){
+        //     for(int i =0 ;i < image_width ;i ++ ){
+        //         color pixel_color(0,0,0);
+        //         for(int sampleu = 0; sampleu < sqrt_spp; sampleu++)
+        //         {
+        //             for(int samplev = 0; samplev < sqrt_spp; samplev++)
+        //             {
+        //                 Ray r = get_ray(i, j, sampleu, samplev);
+        //                 pixel_color += ray_color(r,max_depth,world, lights);
+        //             }
+        //         }
+        //         pixel_color *= recip_sqrt_spp;
+        //         colorBuffer[j * image_width + i] = pixel_color;
+        //     }
+        // }
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
         std::cerr << "render time: " << time_span.count() << "ms\n";

@@ -30,12 +30,12 @@ public:
     }
     static const interval empty,universe;
 };
-const interval interval::empty = interval(+infinity,-infinity);
-const interval interval::universe = interval(-infinity,+infinity);
-interval operator + (const interval& ival,const double& displacement){
+inline const interval interval::empty = interval(+infinity,-infinity);
+inline const interval interval::universe = interval(-infinity,+infinity);
+inline interval operator + (const interval& ival,const double& displacement){
     return interval(ival.min + displacement,ival.max+displacement);
 }
-interval operator + (const double& displacement,const interval& ival){
+inline interval operator + (const double& displacement,const interval& ival){
     return ival + displacement;
 }
 #endif

@@ -8,7 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "D:/learnOpengl/raytrace/main.cpp" "CMakeFiles/main.dir/main.cpp.obj" "gcc" "CMakeFiles/main.dir/main.cpp.obj.d"
+  "/Users/hengluo/Documents/rayTrace/RayTraceWeeks/main.cpp" "CMakeFiles/main.dir/main.cpp.o" "gcc" "CMakeFiles/main.dir/main.cpp.o.d"
+  "/Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/parallel.cpp" "CMakeFiles/main.dir/util/parallel.cpp.o" "gcc" "CMakeFiles/main.dir/util/parallel.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -1,10 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/main.dir/main.cpp.obj"
-  "CMakeFiles/main.dir/main.cpp.obj.d"
-  "D:/learnOpengl/raytrace/bin/main.exe"
-  "D:/learnOpengl/raytrace/bin/main.exe.manifest"
-  "D:/learnOpengl/raytrace/bin/main.pdb"
-  "libmain.dll.a"
+  "/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main"
+  "/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main.pdb"
+  "CMakeFiles/main.dir/main.cpp.o"
+  "CMakeFiles/main.dir/main.cpp.o.d"
+  "CMakeFiles/main.dir/util/parallel.cpp.o"
+  "CMakeFiles/main.dir/util/parallel.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

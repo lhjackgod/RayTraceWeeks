@@ -1,19 +1,16 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 4.0)
 
 project(test)
 
-set(DEFAULT_CXX_STANDARD 11)
-
-set(OpenCV_DIR  D:/openglEnv/Opencv/opencv/build/x64/mingw/lib/)#库路径你自己换成你电脑上的
-
-aux_source_directory(UTIL ${PROJECT_SOURCE_DIR}/util)
-
-find_package(OpenCV REQUIRED)
-
-include_directories(${OpenCV_INCLUDE_DIRS} D:/openglEnv/Eigen/eigen/Eigen/)
+set(DEFAULT_CXX_STANDARD 17)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp UTIL)
+find_package(Threads REQUIRED)
 
-target_link_libraries(main  ${OpenCV_LIBS})
+add_executable(main ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/util/parallel.cpp)
+
+target_include_directories(main PRIVATE ${PROJECT_SOURCE_DIR}/util)
+target_compile_features(main PRIVATE cxx_std_17)
+
+target_link_libraries(main PRIVATE Threads::Threads)
