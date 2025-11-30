@@ -26,7 +26,7 @@ public:
         auto comparator = (axis==0) ? box_x_compare :
                           (axis==1) ? box_y_compare :
                                       box_z_compare ;
-        int len =end -start;
+        int len =end - start;
         if(len == 0){
             left = right = objects[start];
         }

@@ -1,7 +1,7 @@
 #ifndef VECMATH_H
 #define VECMATH_H
 #include <limits.h>
-
+#include "rtweekend.h"
 template<template <typename> class Child, typename T>
 class Tuple2
 {
@@ -128,6 +128,7 @@ class Point2 : public Tuple2<Point2, T>
 };
 
 typedef Point2<int> Point2i;
+typedef Point2<float> Point2f;
 
 template<typename T>
 class Bounds2
@@ -225,6 +226,465 @@ inline Bounds2iIterator end(const Bounds2i& b)
         pEnd = b.pMin;
     }
     return Bounds2iIterator(b, pEnd);
+}
+
+template<int n>
+inline constexpr float Pow(float v)
+{
+    if constexpr (n < 0)
+    {
+        return 1.0f / Pow<-n>(v);
+    }
+    float n2 = Pow<n / 2>(v);
+    return n2 * n2 * Pow<n & 1>(v);
+}
+
+template<>
+inline constexpr float Pow<1>(float v)
+{
+    return v;
+}
+
+template<>
+inline constexpr float Pow<0>(float v)
+{
+    return 1.f;
+}
+
+template<typename T, typename U, typename V>
+inline constexpr T Clamp(T val, U min, V max)
+{
+    if(val < min)      return (T)min;
+    else if(val > max) return (T)max;
+    return val;
+}
+
+template<typename Predicate>
+inline size_t FindInterval(size_t size, const Predicate& pred)
+{
+    size_t l = 0, r = size - 1;
+    while(l < r)
+    {
+        size_t mid = (l + r + 1) / 2;
+        if(pred(mid)) l = mid;
+        else r = mid - 1;
+    }
+    return Clamp(l, 0, size - 1);
+}
+
+inline float Lerp(float t, float a, float b)
+{
+    return a * (1 - t) + b * t;
+}
+
+template<int N>
+inline void init(float m[N][N], int i, int j) {}
+
+template<int N, typename... Args>
+inline void init(float m[N][N], int i, int j, float v, Args... args)
+{
+    m[i][j] = v;
+    if(++j == N)
+    {
+        ++i;
+        j = 0;
+    }
+    init<N>(m, i, j, args...);
+}
+
+template<int N>
+inline void initDiag(float m[N][N], int i) {}
+
+template<int N, typename... Args>
+inline void initDiag(float m[N][N], int i, float v, Args... args)
+{
+    m[i][i] = v;
+    initDiag<N>(m, i + 1, args...);
+}
+
+template<typename T>
+inline std::enable_if_t<std::is_integral_v<T>, T> FMA(T a, T b, T c)
+{
+    return a * b + c;
+}
+
+inline float FMA(float a, float b, float c)
+{
+    return std::fma(a, b, c);
+}
+
+inline double FMA(double a, double b, double c)
+{
+    return std::fma(a, b, c);
+}
+
+inline long double FMA(long double a, long double b, long double c)
+{
+    return std::fma(a, b, c);
+}
+
+template<typename Ta, typename Tb, typename Tc, typename Td>
+inline auto DifferenceOfProducts(Ta a, Tb b, Tc c, Td d)
+{
+    auto cd = c * d;
+    auto differenceOfProducts = FMA(a, b, cd);
+    auto error = FMA(-c, d, cd);
+    return differenceOfProducts + error;
+}
+
+template<int N>
+class SquareMatrix 
+{
+public:
+    static SquareMatrix Zero()
+    {
+        SquareMatrix m;
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                m.m[i][j] = 0;
+            }
+        }
+    }
+
+    SquareMatrix()
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                m[i][j] = (i == j);
+            }
+        }
+    }
+
+    SquareMatrix(const float mat[N][N])
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                m[i][j] = mat[i][j];
+            }
+        }
+    }
+
+    SquareMatrix(const std::span<const float> t);
+
+    template<typename... Args>
+    SquareMatrix(float v, Args... args)
+    {
+        static_assert(1 + sizeof...(Args) == N * N, "Incorrect number of values provided to SquareMatrix constructor");
+        init<N>(m, 0, 0, v, args...);
+    }
+
+    template<typename... Args>
+    static SquareMatrix Diag(float v, Args... args)
+    {
+        static_assert(1 + sizeof...(Args) == N, "Incorrect number of values provided to SquareMatrix::Diag");
+        SquareMatrix m;
+        initDiag<N>(m.m, 0, v, args...);
+        return m;
+    }
+
+    SquareMatrix operator + (const SquareMatrix& other) const
+    {
+        SquareMatrix r = *this;
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                r.m[i][j] += other.m[i][j];
+            }
+        }
+        return r;
+    }
+
+    SquareMatrix operator *(const float s) const 
+    {
+        SquareMatrix r = *this;
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                r.m[i][j] *= s;
+            }
+        }
+        return r;
+    }
+
+    SquareMatrix operator / (const float s) const
+    {
+        CHECK_NE(s, 0);
+        SquareMatrix r = *this;
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                r.m[i][j] /= s;
+            }
+        }
+        return r;
+    }
+
+    bool operator == (const SquareMatrix<N> &m2) const 
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                if(m[i][j] != m2.m[i][j]) return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator != (const SquareMatrix<N> &m2) const 
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                if(m[i][j] != m2.m[i][j]) return true;
+            }
+        }
+        return false;
+    }
+
+    bool operator < (const SquareMatrix<N> &m2) const 
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                if(m[i][j] < m2.m[i][j]) return true;
+                else if(m[i][j] > m2.m[i][j]) return false;
+            }
+        }
+        return false;
+    }
+
+    bool IsIdentity() const;
+
+    std::string ToString() const;
+
+    std::span<const float> operator[](int i) const { return m[i]; }
+
+    std::span<float> operator[](int i) { return std::span<float>(m[i]); }
+
+private:
+    float m[N][N];
+};
+
+struct CompensatedFloat
+{
+public:
+    CompensatedFloat(float v, float err = 0) : v(v), err(err){}
+
+    explicit operator float() const { return v + err; }
+    explicit operator double() const { return static_cast<double>(v) + static_cast<double>(err); }
+
+    std::string ToString() const;
+
+    float v, err;
+};
+
+template<int N>
+float Determinant(const SquareMatrix<N>& m);
+
+template<>
+inline float Determinant(const SquareMatrix<3>& m)
+{
+    float minor12 = DifferenceOfProducts(m[1][1], m[2][2], m[1][2], m[2][1]); //00
+    float minor02 = DifferenceOfProducts(m[1][0], m[2][2], m[1][2], m[2][0]); //01
+    float minor01 = DifferenceOfProducts(m[1][0], m[2][1], m[1][1], m[2][0]); //02
+
+    return FMA(m[0][2], minor01, DifferenceOfProducts(m[0][0], minor12, m[0][1], minor02));
+}
+
+template<int N>
+float Determinant(const SquareMatrix<N>& m)
+{
+    SquareMatrix<N - 1> sub;
+    float det = 0;
+    for(int i = 0; i < N; ++i)
+    {
+        for(int j = 0; j < N - 1; ++j)
+        {
+            for(int k = 0; k < N - 1; ++k)
+            {
+                sub[j][k] = m[j + 1][k < i ? k : k + 1];
+            }
+        }
+        float sign = (i & 1) ? -1 : 1;
+        det += sign * m[0][i] * Determinant(sub);
+    }
+    return det;
+}
+
+inline CompensatedFloat TwoProd(float a, float b)
+{
+    float ab = a * b;
+    return {ab, FMA(a, b, -ab)};
+}
+
+inline CompensatedFloat TwoSum(float a, float b)
+{
+    float s = a + b, delta = s - a;
+    return {s, (a - (s - delta)) + (b - delta)};
+}
+
+namespace internal
+{
+    template<typename Float>
+    inline CompensatedFloat InnerProduct(Float a, Float b)
+    {
+        return TwoProd(a, b);
+    }
+
+    template<typename Float, typename... T>
+    inline CompensatedFloat InnerProduct(Float a, Float b, T... terms)
+    {
+        CompensatedFloat ab = TwoProd(a, b);
+        CompensatedFloat tp = InnerProduct(terms...);
+        CompensatedFloat sum = TwoSum(ab.v, tp.v);
+
+        return {sum.v, ab.err + (tp.err + sum.err)};
+    }
+
+}
+
+template<typename... T>
+inline std::enable_if_t<std::conjunction_v<std::is_arithmetic<T>...>, float> InnerProduct(T... terms)
+{
+    CompensatedFloat ip = internal::InnerProduct(terms...);
+    return float(ip);
+}
+
+template<int N>
+std::optional<SquareMatrix<N>> Inverse(const SquareMatrix<N> &m);
+
+template<>
+inline std::optional<SquareMatrix<3>> Inverse(const SquareMatrix<3> &m)
+{
+    float det = Determinant(m);
+    if(det == 0) return {};
+    float invDet = 1.0f / det;
+
+    SquareMatrix<3> r;
+    r[0][0] = invDet * DifferenceOfProducts(m[1][1], m[2][2], m[1][2], m[2][1]);
+    r[1][0] = invDet * DifferenceOfProducts(m[1][2], m[2][0], m[1][0], m[2][2]);
+    r[2][0] = invDet * DifferenceOfProducts(m[1][0], m[2][1], m[1][1], m[2][0]);
+    r[0][1] = invDet * DifferenceOfProducts(m[0][2], m[2][1], m[0][1], m[2][2]);
+    r[1][1] = invDet * DifferenceOfProducts(m[0][0], m[2][2], m[0][2], m[2][0]);
+    r[2][1] = invDet * DifferenceOfProducts(m[0][1], m[2][0], m[0][0], m[2][1]);
+    r[0][2] = invDet * DifferenceOfProducts(m[0][1], m[1][2], m[0][2], m[1][1]);
+    r[1][2] = invDet * DifferenceOfProducts(m[0][2], m[1][0], m[0][0], m[1][2]);
+    r[2][2] = invDet * DifferenceOfProducts(m[0][0], m[1][1], m[0][1], m[1][0]);
+
+    return r;
+}
+
+template<>
+inline std::optional<SquareMatrix<4>> Inverse(const SquareMatrix<4> &m)
+{
+    // Via: https://github.com/google/ion/blob/master/ion/math/matrixutils.cc,
+    // (c) Google, Apache license.
+
+    // For 4x4 do not compute the adjugate as the transpose of the cofactor
+    // matrix, because this results in extra work. Several calculations can be
+    // shared across the sub-determinants.
+    //
+    // This approach is explained in David Eberly's Geometric Tools book,
+    // excerpted here:
+    //   http://www.geometrictools.com/Documentation/LaplaceExpansionTheorem.pdf
+    float s0 = DifferenceOfProducts(m[0][0], m[1][1], m[1][0], m[0][1]);
+    float s1 = DifferenceOfProducts(m[0][0], m[1][2], m[1][0], m[0][2]);
+    float s2 = DifferenceOfProducts(m[0][0], m[1][3], m[1][0], m[0][3]);
+
+    float s3 = DifferenceOfProducts(m[0][1], m[1][2], m[1][1], m[0][2]);
+    float s4 = DifferenceOfProducts(m[0][1], m[1][3], m[1][1], m[0][3]);
+    float s5 = DifferenceOfProducts(m[0][2], m[1][3], m[1][2], m[0][3]);
+
+    float c0 = DifferenceOfProducts(m[2][0], m[3][1], m[3][0], m[2][1]);
+    float c1 = DifferenceOfProducts(m[2][0], m[3][2], m[3][0], m[2][2]);
+    float c2 = DifferenceOfProducts(m[2][0], m[3][3], m[3][0], m[2][3]);
+
+    float c3 = DifferenceOfProducts(m[2][1], m[3][2], m[3][1], m[2][2]);
+    float c4 = DifferenceOfProducts(m[2][1], m[3][3], m[3][1], m[2][3]);
+    float c5 = DifferenceOfProducts(m[2][2], m[3][3], m[3][2], m[2][3]);
+
+    float determinant = InnerProduct(s0, c5, -s1, c4, s2, c3, s3, c2, s5, c0, -s4, c1);
+    if (determinant == 0)
+        return {};
+    float s = 1 / determinant;
+
+    float inv[4][4] = {{s * InnerProduct(m[1][1], c5, m[1][3], c3, -m[1][2], c4),
+                        s * InnerProduct(-m[0][1], c5, m[0][2], c4, -m[0][3], c3),
+                        s * InnerProduct(m[3][1], s5, m[3][3], s3, -m[3][2], s4),
+                        s * InnerProduct(-m[2][1], s5, m[2][2], s4, -m[2][3], s3)},
+
+                       {s * InnerProduct(-m[1][0], c5, m[1][2], c2, -m[1][3], c1),
+                        s * InnerProduct(m[0][0], c5, m[0][3], c1, -m[0][2], c2),
+                        s * InnerProduct(-m[3][0], s5, m[3][2], s2, -m[3][3], s1),
+                        s * InnerProduct(m[2][0], s5, m[2][3], s1, -m[2][2], s2)},
+
+                       {s * InnerProduct(m[1][0], c4, m[1][3], c0, -m[1][1], c2),
+                        s * InnerProduct(-m[0][0], c4, m[0][1], c2, -m[0][3], c0),
+                        s * InnerProduct(m[3][0], s4, m[3][3], s0, -m[3][1], s2),
+                        s * InnerProduct(-m[2][0], s4, m[2][1], s2, -m[2][3], s0)},
+
+                       {s * InnerProduct(-m[1][0], c3, m[1][1], c1, -m[1][2], c0),
+                        s * InnerProduct(m[0][0], c3, m[0][2], c0, -m[0][1], c1),
+                        s * InnerProduct(-m[3][0], s3, m[3][1], s1, -m[3][2], s0),
+                        s * InnerProduct(m[2][0], s3, m[2][2], s0, -m[2][1], s1)}};
+
+    return SquareMatrix<4>(inv);
+}
+
+template<int N>
+SquareMatrix<N> InvertOrExit(const SquareMatrix<N> &m)
+{
+    std::optional<SquareMatrix<N>> inv = Inverse(m);
+    if(!inv.has_value())
+    {
+        fprintf(stderr, "Failed to invert matrix.\n");
+        exit(EXIT_FAILURE);
+    }
+    return *inv;
+}
+
+template<typename Tresult, int N, typename T>
+inline Tresult Mul(const SquareMatrix<N>& m, const T& v)
+{
+    Tresult result;
+    for(int i = 0; i < N; ++i)
+    {
+        result[i] = 0;
+        for(int j = 0; j < N; ++j)
+        {
+            result[i] += m[i][j] * v[j];
+        }
+    }
+    return result;
+}
+
+template<int N, typename T>
+inline T operator*(const SquareMatrix<N> &m, const T &v)
+{
+    return Mul<T>(m, v);
+}
+template<typename C>
+inline constexpr float EvaluatePolynomial(float t, C c)
+{
+    return c;
+}
+
+template<typename C, typename... Args>
+inline constexpr float EvaluatePolynomial(float t, C c, Args... cRemaining)
+{
+    return FMA(t, EvaluatePolynomial(t, cRemaining), c);
 }
 
 #endif
