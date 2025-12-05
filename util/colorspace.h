@@ -1,5 +1,8 @@
-#include "vecmath.h"
+#ifndef COLORSPACE
+#define COLORSPACE
+#include "rtweekend.h"
 #include "spectrum.h"
+#include "vecmath.h"
 #include "color.h"
 class RGBColorSpace
 {
@@ -37,3 +40,4 @@ private:
 };
 
 SquareMatrix<3> ConvertRGBColorSpace(const RGBColorSpace& from, const RGBColorSpace& to);
+#endif

@@ -1,5 +1,5 @@
 #include "spectrum.h"
-
+#include "colorspace.h"
 
 namespace Spectra
 {
@@ -11,7 +11,15 @@ namespace Spectra
 
 std::string Spectrum::ToString() const 
 {
-    
+    if(!ptr()) 
+    {
+        return "(nullptr)";
+    }
+    auto tostr = [](auto ptr) -> std::string
+    {
+        return ptr->ToString();
+    };
+    return Dispatch(tostr);
 }
 
 float Spectrum::operator()(float lambda) const 
@@ -24,6 +32,70 @@ float Spectrum::MaxValue() const
 {
     auto op = [](auto ptr){ return ptr->MaxValue(); };
     return Dispatch(op);
+}
+
+SampledSpectrum Spectrum::Sample(const SampledWavelengths& lambda) const 
+{
+    auto samp = [&](auto ptr) { return ptr->Sample(lambda); };
+    return Dispatch(samp);
+}
+
+std::string SampledSpectrum::ToString() const 
+{
+    std::string str = "[ ";
+    for(int i = 0; i < NSpectrumSamples; ++i)
+    {
+        std::string TempStr = std::format("{}", values[i]);
+        if(i + 1 < NSpectrumSamples)
+        {
+            TempStr += ", ";
+        }
+        str += TempStr;
+    }
+    str += " ]";
+    return str;
+}
+
+SampledSpectrum ConstantSpectrum::Sample(const SampledWavelengths& lambda) const
+{
+    return SampledSpectrum(c);
+}
+
+std::string ConstantSpectrum::ToString() const
+{
+    return std::format("[ ConstantSpectrum c: {} ]", c);
+}
+
+std::string DenselySampledSpectrum::ToString() const
+{
+    std::string str = std::format("[ DenselySampledSpectrum lambda_min: {} lambda_max: {} ", lambda_min, lambda_max);
+    str += "values: [ ";
+    for(int i = 0; i < values.size(); ++i)
+    {
+        str += std::format("{} ", values[i]);
+    }
+    str += "] ]";
+    return str;
+}
+
+std::string PiecewiseLinearSpectrum::ToString() const 
+{
+    std::string ret = "[ PiecewiseLinearSpectrum ";
+    for(size_t i = 0; i < lambdas.size(); ++i)
+    {
+        ret += std::format("{} {}", lambdas[i], values[i]);
+    }
+    return ret += " ]";
+}
+
+SampledSpectrum PiecewiseLinearSpectrum::Sample(const SampledWavelengths& lambda) const
+{
+    SampledSpectrum s;
+    for(int i = 0; i < NSpectrumSamples; ++i)
+    {
+        s[i] = (*this)(lambda[i]);
+    }
+    return s;
 }
 
 PiecewiseLinearSpectrum::PiecewiseLinearSpectrum(
@@ -94,6 +166,21 @@ PiecewiseLinearSpectrum* PiecewiseLinearSpectrum::FromInterleaved(
     return spec;
 }
 
+std::string BlackBodySpectrum::ToString() const 
+{
+    return std::format("[ BlackbodySpectrum T: {} ]", T);
+}
+
+SampledSpectrum BlackBodySpectrum::Sample(const SampledWavelengths& lambda) const 
+{
+    SampledSpectrum s;
+    for(int i = 0; i < NSpectrumSamples; ++i)
+    {
+        s[i] = BlackBody(lambda[i], T) * normalizationFactor;
+    }
+    return s;
+}
+
 XYZ SampledSpectrum::ToXYZ(const SampledWavelengths& lambda) const
 {
     SampledSpectrum X = Spectra::X().Sample(lambda);
@@ -117,6 +204,18 @@ RGBAlbedoSpectrum::RGBAlbedoSpectrum(const RGBColorSpace& cs, RGB rgb)
     rsp = cs.ToRGBCoeffs(rgb);
 }
 
+std::string RGBAlbedoSpectrum::ToString() const
+{
+    std::string s = rsp.ToString();
+    return std::format("[RGBAlbedoSpectrum rsp: {}]", s);
+}
+
+std::string RGBUnboundedSpectrum::ToString() const
+{
+    std::string s = rsp.ToString();
+    return std::format("[ RGBUnboundedSpectrum rsp: {} ]", s);
+}
+
 RGBUnboundedSpectrum::RGBUnboundedSpectrum(const RGBColorSpace& cs, RGB rgb)
 {
     float m = std::max({rgb.r, rgb.g, rgb.b});
@@ -130,6 +229,13 @@ RGBIlluminantSpectrum::RGBIlluminantSpectrum(const RGBColorSpace& cs, RGB rgb)
     float m = std::max({rgb.r, rgb.g, rgb.b});
     scale = 2.f * m;
     rsp = cs.ToRGBCoeffs(scale ? rgb / scale : RGB(0, 0, 0));
+}
+
+std::string RGBIlluminantSpectrum::ToString() const
+{
+    return std::format("[ RGBIlluminantSpectrum: rsp: {} scale: {} illuminant: {} ]",
+        rsp.ToString(), scale, illuminant ? illuminant->ToString() : std::string("(nullptr)")
+    );
 }
 
 RGB SampledSpectrum::ToRGB(const SampledWavelengths& lambda, const RGBColorSpace& cs) const
@@ -162,4 +268,9 @@ SampledWavelengths SampledWavelengths::SampleUniform(float u, float lambda_min, 
 XYZ SpectrumToXYZ(Spectrum s)
 {
     return XYZ(InnerProduct(&Spectra::X(), s), InnerProduct(&Spectra::Y(), s), InnerProduct(&Spectra::Z(), s)) / CIE_Y_integral;
+}
+
+namespace Spectra
+{
+    DenselySampledSpectrum* x, *y, *z;
 }

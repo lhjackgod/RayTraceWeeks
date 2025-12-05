@@ -69,6 +69,10 @@ public:
     T &operator[](int i) {
         return (i == 0) ? x : y;
     }
+    std::string ToString() const
+    {
+        return std::format("({}, {})", x, y);
+    }
     T x{}, y{};
 };
 
@@ -465,9 +469,43 @@ public:
         return false;
     }
 
-    bool IsIdentity() const;
+    bool IsIdentity() const
+    {
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                if(i == j)
+                {
+                    if(m[i][j] != 1.f)
+                        return false;
+                }
+                else if(m[i][j] != 0.f)
+                    return false;
+            }
+        }
+        return true;
+    }
 
-    std::string ToString() const;
+    std::string ToString() const
+    {
+        std::string s = "[ [";
+        for(int i = 0; i < N; ++i)
+        {
+            for(int j = 0; j < N; ++j)
+            {
+                s += std::format(" {}", m[i][j]);
+                if(j < N - 1)
+                    s += ",";
+                else 
+                    s += " ]";   
+            }
+            if(i < N - 1)
+                s += ", [";
+        }
+        s += " ]";
+        return s;
+    }
 
     std::span<const float> operator[](int i) const { return m[i]; }
 
@@ -476,6 +514,16 @@ public:
 private:
     float m[N][N];
 };
+
+template<int N>
+inline SquareMatrix<N>::SquareMatrix(const std::span<const float> t)
+{
+    CHECK_EQ(N * N, t.size());
+    for(int i = 0; i < N * N; ++i)
+    {
+        m[i / N][i % N] = t[i];
+    }
+}
 
 struct CompensatedFloat
 {
@@ -675,6 +723,52 @@ inline T operator*(const SquareMatrix<N> &m, const T &v)
 {
     return Mul<T>(m, v);
 }
+
+template<int N>
+inline SquareMatrix<N> operator*(const SquareMatrix<N>& m1, const SquareMatrix<N>& m2)
+{
+    SquareMatrix<N> r;
+    for(int i = 0; i < N; ++i)
+    {
+        for(int j = 0; j < N; ++j)
+        {
+            r[i][j] = 0;
+            for(int k = 0; k < N; ++k)
+            {
+                r[i][j] = FMA(m1[i][k], m2[k][j], r[i][j]);
+            }
+        }
+    }
+    return r;
+}
+
+template<>
+inline SquareMatrix<4> operator *(const SquareMatrix<4> &m1, 
+                                  const SquareMatrix<4> &m2)
+{
+    SquareMatrix<4> r;
+    for(int i = 0; i < 4; ++i)
+    {
+        for(int j = 0; j < 4; ++j)
+        {
+            r[i][j] = InnerProduct(m1[i][0], m2[0][j], m1[i][1], m2[1][j], m1[i][2],
+                                   m2[2][j], m1[i][3], m2[3][j]);
+        }
+    }
+    return r;
+}
+
+template<>
+inline SquareMatrix<3> operator*(const SquareMatrix<3>& m1, const SquareMatrix<3>& m2)
+{
+    SquareMatrix<3> r;
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j)
+            r[i][j] =
+                InnerProduct(m1[i][0], m2[0][j], m1[i][1], m2[1][j], m1[i][2], m2[2][j]);
+    return r;
+}
+
 template<typename C>
 inline constexpr float EvaluatePolynomial(float t, C c)
 {
@@ -684,7 +778,7 @@ inline constexpr float EvaluatePolynomial(float t, C c)
 template<typename C, typename... Args>
 inline constexpr float EvaluatePolynomial(float t, C c, Args... cRemaining)
 {
-    return FMA(t, EvaluatePolynomial(t, cRemaining), c);
+    return FMA(t, EvaluatePolynomial(t, cRemaining...), c);
 }
 
 #endif

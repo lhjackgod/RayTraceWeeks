@@ -1,6 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 #include "rtweekend.h"
+#include "vecmath.h"
 using color=vec3;
 
 inline double linear_to_gamma(double linear_component){
@@ -30,8 +31,6 @@ class XYZ
 public:
     XYZ() = default;
     XYZ(float x, float y, float z) : X(x), Y(y), Z(z) {}
-
-    XYZ operator / (float f) const { return {X / f, Y / f, Z / f}; }
 
     float Average() const { return (X + Y + Z) / 3.f; }
 

@@ -111,7 +111,9 @@ public:
     TaggedPointer(T* ptr)
     {
         uint64_t iptr = reinterpret_cast<uint64_t>(ptr); //将地址的值转为uint64_t
-        constexpr unsigned int type = 
+        CHECK_EQ(iptr & ptrMask, iptr);
+        constexpr unsigned int type = TypeIndex<T>();
+        bits = iptr | ((uint64_t)type << tagShift);
     }
 
     template <typename T>

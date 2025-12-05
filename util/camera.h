@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include "rtweekend.h"
+#include "color.h"
 #include "hittable.h"
 #include "material.h"
 #include "pdf.h"

@@ -30,7 +30,7 @@ std::optional<SquareMatrix<N>> Inverse(const SquareMatrix<N> &m)
         // Swap rows _irow_ and _icol_ for pivot
         if (irow != icol) {
             for (int k = 0; k < N; ++k)
-                pstd::swap(minv[irow][k], minv[icol][k]);
+                std::swap(minv[irow][k], minv[icol][k]);
         }
         indxr[i] = irow;
         indxc[i] = icol;
@@ -57,7 +57,7 @@ std::optional<SquareMatrix<N>> Inverse(const SquareMatrix<N> &m)
     for (int j = N - 1; j >= 0; j--) {
         if (indxr[j] != indxc[j]) {
             for (int k = 0; k < N; k++)
-                pstd::swap(minv[k][indxr[j]], minv[k][indxc[j]]);
+                std::swap(minv[k][indxr[j]], minv[k][indxc[j]]);
         }
     }
     return SquareMatrix<N>(minv);

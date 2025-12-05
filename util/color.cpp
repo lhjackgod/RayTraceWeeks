@@ -46,3 +46,8 @@ RGBSigmoidPolynomial RGBToSpectrumTable::operator()(RGB rgb) const
     }
     return {c[0], c[1], c[2]};
 }
+
+std::string RGBSigmoidPolynomial::ToString() const 
+{
+    return std::format("[ RGBSigmoidPolynomial c0: {} c1: {} c2: {} ]", c0, c1, c2);
+}

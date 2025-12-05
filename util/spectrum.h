@@ -1,9 +1,10 @@
 #ifndef SPECTRUM
 #define SPECTRUM
-#include "taggedptr.h"
-#include <math.h>
+#include "rtweekend.h"
 #include "vecmath.h"
-#include "colorspace.h"
+#include "color.h"
+#include "taggedptr.h"
+
 constexpr float Lambda_min = 360, Lambda_max = 830;
 static constexpr int NSpectrumSamples = 4;
 static constexpr float CIE_Y_integral = 106.856895;
@@ -27,6 +28,9 @@ class DenselySampledSpectrum;
 class RGBAlbedoSpectrum;
 class RGBUnboundedSpectrum;
 class RGBIlluminantSpectrum;
+class SampledSpectrum;
+class SampledWavelengths;
+class RGBColorSpace;
 
 class Spectrum : public TaggedPointer<ConstantSpectrum, DenselySampledSpectrum,
                                       PiecewiseLinearSpectrum, RGBAlbedoSpectrum,
@@ -41,6 +45,8 @@ public:
     float operator()(float lambda) const;
     
     float MaxValue() const;
+
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const;
 };
 
 class SampledSpectrum
@@ -77,6 +83,16 @@ public:
     {
         SampledSpectrum ret = *this;
         ret -= s;
+        return ret;
+    }
+
+    friend SampledSpectrum operator-(float a, const SampledSpectrum& s) 
+    {
+        SampledSpectrum ret;
+        for(int i = 0; i < NSpectrumSamples; ++i)
+        {
+            ret.values[i] = a - s.values[i];
+        }
         return ret;
     }
 
@@ -257,6 +273,53 @@ private:
     std::array<float, NSpectrumSamples> values;
 };
 
+class SampledWavelengths
+{
+public:
+    static SampledWavelengths SampleUniform(float u, float lambda_min = Lambda_min, float lambda_max = Lambda_max);
+
+    bool operator==(const SampledWavelengths& other) const 
+    {
+        return lambda == other.lambda && pdf == other.pdf;
+    }
+
+    bool operator!=(const SampledWavelengths& other) const
+    {
+        return lambda != other.lambda || pdf != other.pdf;
+    }
+
+    std::string ToString() const;
+
+    float operator[](int i) const { return lambda[i]; }
+
+    float& operator[](int i) { return lambda[i]; }
+
+    SampledSpectrum PDF() const { return SampledSpectrum(pdf); }
+
+    void TerminateSecondary()
+    {
+        if(SecondaryTerminated()) return;
+
+        for(int i = 1; i < NSpectrumSamples; ++i)
+        {
+            pdf[i] = 0;
+        }
+        pdf[0] /= NSpectrumSamples;
+    }
+
+    bool SecondaryTerminated() const 
+    {
+        for(int i = 1; i < NSpectrumSamples; ++i)
+        {
+            if(pdf[i] != 0) return false;
+        }
+        return true;
+    }
+
+private:
+    std::array<float, NSpectrumSamples> lambda, pdf;
+};
+
 class ConstantSpectrum
 {
 public:
@@ -264,6 +327,7 @@ public:
     float operator()(float lambda) const { return c; }
     float MaxValue() const { return c; }
     std::string ToString() const;
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const;
 private:
     float c;
 };
@@ -271,6 +335,7 @@ private:
 class DenselySampledSpectrum
 {
 public:
+    DenselySampledSpectrum() = default;
     DenselySampledSpectrum(Spectrum spec, int _lambda_min = Lambda_min, int _lambda_max = Lambda_max)
     : lambda_min(_lambda_min), lambda_max(_lambda_max), values(_lambda_max - _lambda_min + 1) 
     {
@@ -313,6 +378,8 @@ public:
         return *std::max_element(values.begin(), values.end());
     }
 
+    std::string ToString() const;
+
 private:
     int lambda_min, lambda_max;
     std::vector<float> values;
@@ -332,6 +399,8 @@ public:
             v *= s;
         }
     }
+
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const;
     
     std::string ToString() const;
 
@@ -359,6 +428,8 @@ public:
         return normalizationFactor * BlackBody(lambda, T);
     }
 
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const;
+
     float MaxValue() const { return 1.f; }
 
     std::string ToString() const;
@@ -373,6 +444,19 @@ public:
     RGBAlbedoSpectrum(const RGBColorSpace& cs, RGB rgb);
     float operator()(float lambda) const { return rsp(lambda); }
     float MaxValue() const { return rsp.MaxValue(); }
+
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const
+    {
+        SampledSpectrum s;
+        for(int i = 0; i < NSpectrumSamples; ++i)
+        {
+            s[i] = rsp(lambda[i]);
+        }
+        return s;
+    }
+
+    std::string ToString() const;
+
 private:
     RGBSigmoidPolynomial rsp;
 };
@@ -384,6 +468,19 @@ public:
 
     float operator()(float lambda) const { return rsp(lambda) * scale; }
     float MaxValue() const { return rsp.MaxValue() * scale; }
+
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const 
+    {
+        SampledSpectrum s;
+        for(int i = 0; i < NSpectrumSamples; ++i)
+        {
+            s[i] = rsp(lambda[i]) * scale;
+        }
+        return s;
+    }
+
+    std::string ToString() const;
+
 private:
     float scale = 1.f;
     RGBSigmoidPolynomial rsp;
@@ -405,6 +502,18 @@ public:
         if(!illuminant) return 0.f;
         return scale * rsp.MaxValue() * illuminant->MaxValue();
     }
+    SampledSpectrum Sample(const SampledWavelengths& lambda) const
+    {
+        if(!illuminant) return SampledSpectrum(0);
+        SampledSpectrum s;
+        for(int i = 0; i < NSpectrumSamples; ++i)
+        {
+            s[i] = scale * rsp(lambda[i]);
+        }
+        return s * illuminant->Sample(lambda);
+    }
+
+    std::string ToString() const;
 private:
     float scale;
     RGBSigmoidPolynomial rsp;
@@ -493,53 +602,6 @@ inline SampledSpectrum Bilerp(std::array<float, 2> p, std::span<const SampledSpe
     return ((1 - p[0]) * (1 - p[1]) * v[0] + p[0] * (1 - p[1]) * v[1] +
             (1 - p[0]) * p[1] * v[2] + p[0] * p[1] * v[3]);
 }
-
-class SampledWavelengths
-{
-public:
-    static SampledWavelengths SampleUniform(float u, float lambda_min = Lambda_min, float lambda_max = Lambda_max);
-
-    bool operator==(const SampledWavelengths& other) const 
-    {
-        return lambda == other.lambda && pdf == other.pdf;
-    }
-
-    bool operator!=(const SampledWavelengths& other) const
-    {
-        return lambda != other.lambda || pdf != other.pdf;
-    }
-
-    std::string ToString() const;
-
-    float operator[](int i) const { return lambda[i]; }
-
-    float& operator[](int i) { return lambda[i]; }
-
-    SampledSpectrum PDF() const { return SampledSpectrum(pdf); }
-
-    void TerminateSecondary()
-    {
-        if(SecondaryTerminated()) return;
-
-        for(int i = 1; i < NSpectrumSamples; ++i)
-        {
-            pdf[i] = 0;
-        }
-        pdf[0] /= NSpectrumSamples;
-    }
-
-    bool SecondaryTerminated() const 
-    {
-        for(int i = 1; i < NSpectrumSamples; ++i)
-        {
-            if(pdf[i] != 0) return false;
-        }
-        return true;
-    }
-
-private:
-    std::array<float, NSpectrumSamples> lambda, pdf;
-};
 
 namespace Spectra
 {

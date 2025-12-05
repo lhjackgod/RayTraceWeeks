@@ -63,3 +63,8 @@ RGBSigmoidPolynomial RGBColorSpace::ToRGBCoeffs(RGB rgb) const
 {
     return (*rgbToSpectrumTable)(rgb);
 }
+
+std::string RGBColorSpace::ToString() const
+{
+    return std::format("[ RGBColorSpace r: {} g: {} b: {} w: {} illuminant: {} RGBToXYZ: {} XYZToRGB: {} ]", r.ToString(), g.ToString(), b.ToString(), w.ToString(), illuminant.ToString(), XYZFromRGB.ToString(), RGBFromXYZ.ToString());
+}

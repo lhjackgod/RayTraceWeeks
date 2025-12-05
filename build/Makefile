@@ -160,6 +160,54 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+util/color.o: util/color.cpp.o
+.PHONY : util/color.o
+
+# target to build an object file
+util/color.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/color.cpp.o
+.PHONY : util/color.cpp.o
+
+util/color.i: util/color.cpp.i
+.PHONY : util/color.i
+
+# target to preprocess a source file
+util/color.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/color.cpp.i
+.PHONY : util/color.cpp.i
+
+util/color.s: util/color.cpp.s
+.PHONY : util/color.s
+
+# target to generate assembly for a file
+util/color.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/color.cpp.s
+.PHONY : util/color.cpp.s
+
+util/colorspace.o: util/colorspace.cpp.o
+.PHONY : util/colorspace.o
+
+# target to build an object file
+util/colorspace.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/colorspace.cpp.o
+.PHONY : util/colorspace.cpp.o
+
+util/colorspace.i: util/colorspace.cpp.i
+.PHONY : util/colorspace.i
+
+# target to preprocess a source file
+util/colorspace.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/colorspace.cpp.i
+.PHONY : util/colorspace.cpp.i
+
+util/colorspace.s: util/colorspace.cpp.s
+.PHONY : util/colorspace.s
+
+# target to generate assembly for a file
+util/colorspace.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/colorspace.cpp.s
+.PHONY : util/colorspace.cpp.s
+
 util/parallel.o: util/parallel.cpp.o
 .PHONY : util/parallel.o
 
@@ -184,6 +232,54 @@ util/parallel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/parallel.cpp.s
 .PHONY : util/parallel.cpp.s
 
+util/spectrum.o: util/spectrum.cpp.o
+.PHONY : util/spectrum.o
+
+# target to build an object file
+util/spectrum.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/spectrum.cpp.o
+.PHONY : util/spectrum.cpp.o
+
+util/spectrum.i: util/spectrum.cpp.i
+.PHONY : util/spectrum.i
+
+# target to preprocess a source file
+util/spectrum.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/spectrum.cpp.i
+.PHONY : util/spectrum.cpp.i
+
+util/spectrum.s: util/spectrum.cpp.s
+.PHONY : util/spectrum.s
+
+# target to generate assembly for a file
+util/spectrum.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/spectrum.cpp.s
+.PHONY : util/spectrum.cpp.s
+
+util/vecmath.o: util/vecmath.cpp.o
+.PHONY : util/vecmath.o
+
+# target to build an object file
+util/vecmath.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/vecmath.cpp.o
+.PHONY : util/vecmath.cpp.o
+
+util/vecmath.i: util/vecmath.cpp.i
+.PHONY : util/vecmath.i
+
+# target to preprocess a source file
+util/vecmath.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/vecmath.cpp.i
+.PHONY : util/vecmath.cpp.i
+
+util/vecmath.s: util/vecmath.cpp.s
+.PHONY : util/vecmath.s
+
+# target to generate assembly for a file
+util/vecmath.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/util/vecmath.cpp.s
+.PHONY : util/vecmath.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -197,9 +293,21 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... util/color.o"
+	@echo "... util/color.i"
+	@echo "... util/color.s"
+	@echo "... util/colorspace.o"
+	@echo "... util/colorspace.i"
+	@echo "... util/colorspace.s"
 	@echo "... util/parallel.o"
 	@echo "... util/parallel.i"
 	@echo "... util/parallel.s"
+	@echo "... util/spectrum.o"
+	@echo "... util/spectrum.i"
+	@echo "... util/spectrum.s"
+	@echo "... util/vecmath.o"
+	@echo "... util/vecmath.i"
+	@echo "... util/vecmath.s"
 .PHONY : help
 
 

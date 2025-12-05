@@ -100,19 +100,83 @@ CMakeFiles/main.dir/util/parallel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/util/parallel.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/parallel.cpp -o CMakeFiles/main.dir/util/parallel.cpp.s
 
+CMakeFiles/main.dir/util/color.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/util/color.cpp.o: /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/color.cpp
+CMakeFiles/main.dir/util/color.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/main.dir/util/color.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/util/color.cpp.o -MF CMakeFiles/main.dir/util/color.cpp.o.d -o CMakeFiles/main.dir/util/color.cpp.o -c /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/color.cpp
+
+CMakeFiles/main.dir/util/color.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/util/color.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/color.cpp > CMakeFiles/main.dir/util/color.cpp.i
+
+CMakeFiles/main.dir/util/color.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/util/color.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/color.cpp -o CMakeFiles/main.dir/util/color.cpp.s
+
+CMakeFiles/main.dir/util/colorspace.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/util/colorspace.cpp.o: /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/colorspace.cpp
+CMakeFiles/main.dir/util/colorspace.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/main.dir/util/colorspace.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/util/colorspace.cpp.o -MF CMakeFiles/main.dir/util/colorspace.cpp.o.d -o CMakeFiles/main.dir/util/colorspace.cpp.o -c /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/colorspace.cpp
+
+CMakeFiles/main.dir/util/colorspace.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/util/colorspace.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/colorspace.cpp > CMakeFiles/main.dir/util/colorspace.cpp.i
+
+CMakeFiles/main.dir/util/colorspace.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/util/colorspace.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/colorspace.cpp -o CMakeFiles/main.dir/util/colorspace.cpp.s
+
+CMakeFiles/main.dir/util/spectrum.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/util/spectrum.cpp.o: /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/spectrum.cpp
+CMakeFiles/main.dir/util/spectrum.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/main.dir/util/spectrum.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/util/spectrum.cpp.o -MF CMakeFiles/main.dir/util/spectrum.cpp.o.d -o CMakeFiles/main.dir/util/spectrum.cpp.o -c /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/spectrum.cpp
+
+CMakeFiles/main.dir/util/spectrum.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/util/spectrum.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/spectrum.cpp > CMakeFiles/main.dir/util/spectrum.cpp.i
+
+CMakeFiles/main.dir/util/spectrum.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/util/spectrum.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/spectrum.cpp -o CMakeFiles/main.dir/util/spectrum.cpp.s
+
+CMakeFiles/main.dir/util/vecmath.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/util/vecmath.cpp.o: /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/vecmath.cpp
+CMakeFiles/main.dir/util/vecmath.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/main.dir/util/vecmath.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/util/vecmath.cpp.o -MF CMakeFiles/main.dir/util/vecmath.cpp.o.d -o CMakeFiles/main.dir/util/vecmath.cpp.o -c /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/vecmath.cpp
+
+CMakeFiles/main.dir/util/vecmath.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/util/vecmath.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/vecmath.cpp > CMakeFiles/main.dir/util/vecmath.cpp.i
+
+CMakeFiles/main.dir/util/vecmath.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/util/vecmath.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/hengluo/Documents/rayTrace/RayTraceWeeks/util/vecmath.cpp -o CMakeFiles/main.dir/util/vecmath.cpp.s
+
 # Object files for target main
 main_OBJECTS = \
 "CMakeFiles/main.dir/main.cpp.o" \
-"CMakeFiles/main.dir/util/parallel.cpp.o"
+"CMakeFiles/main.dir/util/parallel.cpp.o" \
+"CMakeFiles/main.dir/util/color.cpp.o" \
+"CMakeFiles/main.dir/util/colorspace.cpp.o" \
+"CMakeFiles/main.dir/util/spectrum.cpp.o" \
+"CMakeFiles/main.dir/util/vecmath.cpp.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
 
 /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/main.cpp.o
 /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/util/parallel.cpp.o
+/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/util/color.cpp.o
+/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/util/colorspace.cpp.o
+/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/util/spectrum.cpp.o
+/Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/util/vecmath.cpp.o
 /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/build.make
 /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/hengluo/Documents/rayTrace/RayTraceWeeks/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable /Users/hengluo/Documents/rayTrace/RayTraceWeeks/bin/main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

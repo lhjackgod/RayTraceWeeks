@@ -3,7 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <rtweekend.h>
+#include "rtweekend.h"
 #include "vecmath.h"
 #include <stdio.h>
 #include <cassert>
